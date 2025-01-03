@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <style>
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            text-align: center;
+        }
+        input, button {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Send OTP</h1>
+        <form id="otpForm">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" placeholder="Enter your email" required>
+            <button type="submit">Send OTP</button>
+        </form>
+
+        <div id="otpVerification" style="display: none;">
+            <label for="otp">Enter OTP</label>
+            <input type="text" id="otp" placeholder="Enter the OTP" required>
+            <button id="verifyOtpButton">Verify OTP</button>
+        </div>
+
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('otpForm');
+        const otpVerificationDiv = document.getElementById('otpVerification');
+        const messageDiv = document.getElementById('message');
+        const verifyOtpButton = document.getElementById('verifyOtpButton');
+
+        let email; 
+
+        
+        function generateOTP() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            email = document.getElementById('email').value;
+            const otp = generateOTP();
+
+            messageDiv.textContent = "Sending OTP...";
+            try {
+                const response = await fetch('http://localhost:4000/send-mail', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, otp }),
+                });
+
+                if (response.ok) {
+                    messageDiv.textContent = `OTP sent to ${email}. Check your inbox!`;
+                    otpVerificationDiv.style.display = 'block';
+                } else {
+                    const errorData = await response.json();
+                    messageDiv.textContent = `Error: ${errorData.message}`;
+                }
+            } catch (error) {
+                messageDiv.textContent = "Failed to send OTP. Please try again.";
+                console.error('Error:', error);
+            }
+        });
+
+        verifyOtpButton.addEventListener('click', async () => {
+            const otp = document.getElementById('otp').value;
+
+            messageDiv.textContent = "Verifying OTP...";
+            try {
+                const response = await fetch('http://localhost:4000/verify-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, otp }),
+                });
+
+                if (response.ok) {
+                    messageDiv.textContent = "OTP verified successfully!";
+                } else {
+                    const errorData = await response.json();
+                    messageDiv.textContent = `Error: ${errorData.message}`;
+                }
+            } catch (error) {
+                messageDiv.textContent = "Failed to verify OTP. Please try again.";
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
