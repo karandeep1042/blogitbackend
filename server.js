@@ -11,8 +11,8 @@ app.use(cors());
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'modelcollegedhrub@gmail.com',
-        pass: 'pxww ilnr jtxp ganr', 
+        user: 'itblog87@gmail.com',
+        pass: 'mfuy pqxb myxb leis', 
     },
 });
 
@@ -31,7 +31,7 @@ app.post('/send-mail', async (req, res) => {
     otpStore[email] = otp;
 
     const mailOptions = {
-        from: 'modelcollegedhrub@gmail.com',
+        from: 'itblog87@gmail.com',
         to: email,
         subject: 'Your OTP Code',
         text: `Your OTP is ${otp}. It is valid only while you are on the verification page.`,
